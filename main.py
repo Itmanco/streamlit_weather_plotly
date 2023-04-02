@@ -13,18 +13,21 @@ st.subheader(f"{option} for the next {days} days in {place}")
 
 if place:
     #Get the temperature / sky data
-    data = get_data(place, days)
-    dates = [dict["dt_txt"] for dict in data]
-    if option == "Temperature":
-        temperatures = [dict["main"]["temp"] for dict in data]
-        figure = px.line(x=dates, y=temperatures, labels={"x": "Date", "y": "Temperature (C)"})
-        st.plotly_chart(figure)
-    elif option == "Sky":
-        sky_conditions = [dict["weather"][0]["main"] for dict in data]
-        images = {"Clear": "images/clear.png", "Clouds": "static/cloud.png",
-                  "Rain": "static/rain.png", "Snow": "static/snow.png"}
-        image_paths = [images[condition] for condition in sky_conditions]
-        st.image(image_paths, width=115, caption=dates)
+    try:
+        data = get_data(place, days)
+        dates = [dict["dt_txt"] for dict in data]
+        if option == "Temperature":
+            temperatures = [dict["main"]["temp"]/10 for dict in data]
+            figure = px.line(x=dates, y=temperatures, labels={"x": "Date", "y": "Temperature (C)"})
+            st.plotly_chart(figure)
+        elif option == "Sky":
+            sky_conditions = [dict["weather"][0]["main"] for dict in data]
+            images = {"Clear": "static/clear.png", "Clouds": "static/cloud.png",
+                      "Rain": "static/rain.png", "Snow": "static/snow.png"}
+            image_paths = [images[condition] for condition in sky_conditions]
+            st.image(image_paths, width=115, caption=dates)
+    except KeyError:
+        st.write("That place does not exist.")
 
 
 # Press the green button in the gutter to run the script.
